@@ -9,14 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.androidnetworking.interfaces.StringRequestListener;
+import com.google.gson.Gson;
 
 
 /**
@@ -27,6 +32,7 @@ public class Register_page extends Fragment {
     private Button back;
     private EditText userName;
     private EditText password;
+    private TextView mText;
 
 
 
@@ -40,6 +46,7 @@ public class Register_page extends Fragment {
         back = view_register_page.findViewById(R.id.back);
         final EditText userName = view_register_page.findViewById(R.id.userName);
         final EditText password = view_register_page.findViewById(R.id.password);
+        mText = view_register_page.findViewById(R.id.mText);
 
 
             back.setOnClickListener(new View.OnClickListener() {
@@ -52,36 +59,30 @@ public class Register_page extends Fragment {
                 }
             });
 
-            register.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+             register.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                 public void onClick(View v) {
+                      Gson gson = new Gson();
 
-                    AndroidNetworking.post("https://hinl.app:9990/register")
-                            .addBodyParameter("userName",  String.valueOf(userName))
-                            .addBodyParameter("passwd", String.valueOf(password))
-                            .setTag("test")
-                            .setPriority(Priority.MEDIUM)
-                            .build()
-                            .getAsJSONObject(new JSONObjectRequestListener() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-                                    // do anything with response
-                                }
-                                @Override
-                                public void onError(ANError error) {
-                                    // handle error
-                                }
-                            });
-
-
-                }
-            });
-
-
-
+                      AndroidNetworking.post("https://hinl.app:9990/register")
+                              .addJSONObjectBody(gson.toJson(user)) // posting json
+                              .setTag("test")
+                              .setPriority(Priority.MEDIUM)
+                              .build()
+                              .getAsJSONArray(new JSONArrayRequestListener() {
+                                  @Override
+                                  public void onResponse(JSONArray response) {
+                                      // do anything with response
+                                      mText.setText("Response: " + response.toString());
+                                  }
+                                  @Override
+                                  public void onError(ANError error) {
+                                      // handle error
+                                  }
+                              });
+                  }
+             });
         return view_register_page;
-
-
     }
 
 
